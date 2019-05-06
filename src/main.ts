@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 
-import { AppModule } from './app.module';
-
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './modules/app.module';
 
 const bootstrap = async () => {
   const app = await NestFactory.create(AppModule);
@@ -11,48 +9,14 @@ const bootstrap = async () => {
     ? `${AppModule.host}:${AppModule.port}`
     : AppModule.host;
 
-  const swaggerOptions = new DocumentBuilder()
-    .setTitle('Nest Start')
-    .setVersion('API documentation')
-    .setVersion('1.0.0')
-    .setHost(hostDomain.split('//')[1])
-    .setSchemes(AppModule.isDev ? 'http' : 'https')
-    .setBasePath('/api')
-    .addBearerAuth('Authorization', 'header')
-    .build();
-
-  const swaggerDoc = SwaggerModule.createDocument(app, swaggerOptions);
-
-  app.use('/api/docs/swagger.json', (req, res) => {
-    res.send(swaggerDoc);
-  });
-
-  SwaggerModule.setup('/api/docs', app, null, {
-    swaggerUrl: `${hostDomain}/api/docs/swagger.json`,
-    explorer: true,
-    swaggerOptions: {
-      docExpansion: 'list',
-      filter: true,
-      showRequestDuration: true,
-    },
-  });
-
   app.setGlobalPrefix(AppModule.prefix);
 
-  console.log(`
-	▒█▄░▒█ █▀▀█ █▀▀▄ █▀▀ ░░▀ █▀▀ 
-	▒█▒█▒█ █░░█ █░░█ █▀▀ ░░█ ▀▀█ 
-	▒█░░▀█ ▀▀▀▀ ▀▀▀░ ▀▀▀ █▄█ ▀▀▀ 
-	`);
-
+  await app.listen(AppModule.port);
   console.log(
     `\n➡➡ The server is online: ${hostDomain}/${AppModule.prefix}. Environment: ${
       AppModule.isDev ? 'dev' : 'prod'
-    } : AppModule.host
-    }, with Node.js v${process.versions.node}.`,
+    }, with Node.js ${process.versions.node}.`,
   );
-
-  await app.listen(AppModule.port);
 };
 
 bootstrap();
